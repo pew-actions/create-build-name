@@ -1,0 +1,39 @@
+name: PEW Create build name
+description: GitHub action to generate a standardized PEW build artifact name
+
+inputs:
+  project-name:
+    description: Name of the project
+    required: false
+    type: string
+  build-configuration:
+    description: Configuration for the build
+    required: true
+    type: string
+  date-format:
+    description:
+    default: '%y%m%d-%H%M%S'
+    type: string
+    required: false
+  format:
+    description: Format to use for the build artifact
+    default: '{project}-%ad-%h+{platform}+{configuration}+${{ github.ref_name }}.zip'
+    type: string
+    required: false
+outputs:
+  nx:
+    description: "Name of the Switch build artifact"
+  pc:
+    description: "Name of the PC build artifact"
+  ps4:
+    description: "Name of the PS4 build artifact"
+  ps5:
+    description: "Name of the PS5 build artifact"
+  xb1:
+    description: "Name of the Xbox One build artifact"
+  xbs:
+    description: "Name of the Xbox Series build artifact"
+
+runs:
+  using: node16
+  main: dist/index.js
