@@ -1698,13 +1698,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const exec = __importStar(__webpack_require__(986));
 const io = __importStar(__webpack_require__(1));
+const wordlist = __importStar(__webpack_require__(483));
 class GitOutput {
     constructor() {
         this.stdout = '';
         this.exitCode = 0;
     }
 }
-function execGit(args) {
+function execGit(args, silent = true) {
     return __awaiter(this, void 0, void 0, function* () {
         const result = new GitOutput();
         const env = {};
@@ -1715,6 +1716,7 @@ function execGit(args) {
         const stdout = [];
         const options = {
             env,
+            silent,
             listeners: {
                 stdout: (data) => {
                     stdout.push(data.toString());
@@ -1748,8 +1750,20 @@ function run() {
                 `--pretty=${logFormat}`,
             ];
             const result = yield execGit(args);
-            var templateName = result.stdout;
+            var templateName = result.stdout.trim();
+            // get short date format
+            const shortDateArgs = [
+                'log',
+                '-1',
+                '--date=format-local:%m%d',
+                '--pretty=%ad',
+            ];
+            const shortDate = (yield execGit(shortDateArgs)).stdout.trim();
             templateName = templateName.replace('{project}', projectName);
+            const shortName = shortDate + wordlist.generateAdjectiveNoun(templateName);
+            core.setOutput('short', shortName);
+            console.log(`Using template name ${templateName} with short name ${shortName}`);
+            templateName = templateName.replace('{shortname}', shortName);
             templateName = templateName.replace('{configuration}', buildConfiguration.toUpperCase());
             core.setOutput('nx', templateName.replace('{platform}', 'NX'));
             core.setOutput('pc', templateName.replace('{platform}', 'PC'));
@@ -3075,6 +3089,51 @@ Object.defineProperty(exports, "toPosixPath", { enumerable: true, get: function 
 Object.defineProperty(exports, "toWin32Path", { enumerable: true, get: function () { return path_utils_1.toWin32Path; } });
 Object.defineProperty(exports, "toPlatformPath", { enumerable: true, get: function () { return path_utils_1.toPlatformPath; } });
 //# sourceMappingURL=core.js.map
+
+/***/ }),
+
+/***/ 483:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.generateAdjectiveNoun = void 0;
+const crypto = __importStar(__webpack_require__(417));
+const adjectiveList = ["Adorable", "Adventurous", "Aggressive", "Agreeable", "Alert", "Alive", "Amused", "Angry", "Annoyed", "Annoying", "Anxious", "Arrogant", "Ashamed", "Attractive", "Average", "Awful", "Bad", "Beautiful", "Better", "Bewildered", "Black", "Bloody", "Blue", "Blue-eyed", "Blushing", "Bored", "Brainy", "Brave", "Breakable", "Bright", "Busy", "Calm", "Careful", "Cautious", "Charming", "Cheerful", "Clean", "Clear", "Clever", "Cloudy", "Clumsy", "Colorful", "Combative", "Comfortable", "Concerned", "Condemned", "Confused", "Cooperative", "Courageous", "Crazy", "Creepy", "Crowded", "Cruel", "Curious", "Cute", "Dangerous", "Dark", "Dead", "Defeated", "Defiant", "Delightful", "Depressed", "Determined", "Different", "Difficult", "Disgusted", "Distinct", "Disturbed", "Dizzy", "Doubtful", "Drab", "Dull", "Eager", "Easy", "Elated", "Elegant", "Embarrassed", "Enchanting", "Encouraging", "Energetic", "Enthusiastic", "Envious", "Evil", "Excited", "Expensive", "Exuberant", "Fair", "Faithful", "Famous", "Fancy", "Fantastic", "Fierce", "Filthy", "Fine", "Foolish", "Fragile", "Frail", "Frantic", "Friendly", "Frightened", "Funny", "Gentle", "Gifted", "Glamorous", "Gleaming", "Glorious", "Good", "Gorgeous", "Graceful", "Grieving", "Grotesque", "Grumpy", "Handsome", "Happy", "Healthy", "Helpful", "Helpless", "Hilarious", "Homeless", "Homely", "Horrible", "Hungry", "Hurt", "Ill", "Important", "Impossible", "Inexpensive", "Innocent", "Inquisitive", "Itchy", "Jealous", "Jittery", "Jolly", "Joyous", "Kind", "Lazy", "Light", "Lively", "Lonely", "Long", "Lovely", "Lucky", "Magnificent", "Misty", "Modern", "Motionless", "Muddy", "Mushy", "Mysterious", "Nasty", "Naughty", "Nervous", "Nice", "Nutty", "Obedient", "Obnoxious", "Odd", "Old-fashioned", "Open", "Outrageous", "Outstanding", "Panicky", "Perfect", "Plain", "Pleasant", "Poised", "Poor", "Powerful", "Precious", "Prickly", "Proud", "Putrid", "Puzzled", "Quaint", "Real", "Relieved", "Repulsive", "Rich", "Scary", "Selfish", "Shiny", "Shy", "Silly", "Sleepy", "Smiling", "Smoggy", "Sore", "Sparkling", "Splendid", "Spotless", "Stormy", "Strange", "Stupid", "Successful", "Super", "Talented", "Tame", "Tasty", "Tender", "Tense", "Terrible", "Thankful", "Thoughtful", "Thoughtless", "Tired", "Tough", "Troubled", "Ugliest", "Ugly", "Uninterested", "Unsightly", "Unusual", "Upset", "Uptight", "Vast", "Victorious", "Vivacious", "Wandering", "Weary", "Wicked", "Wide-eyed", "Wild", "Witty", "Worried", "Worrisome", "Wrong", "Zany", "Zealous"];
+const nounList = ["Actor", "Afternoon", "Airport", "Ambulance", "Animal", "Answer", "Apple", "Army", "Balloon", "Banana", "Battery", "Beach", "Beard", "Bed", "Boy", "Branch", "Breakfast", "Brother", "Camera", "Candle", "Car", "Caravan", "Carpet", "Cartoon", "Church", "Crayon", "Crowd", "Daughter", "Death", "Diamond", "Dinner", "Disease", "Doctor", "Dog", "Dream", "Dress", "Easter", "Egg", "Eggplant", "Elephant", "Energy", "Engine", "Evening", "Eye", "Family", "Fern", "Fish", "Flag", "Flower", "Football", "Forest", "Fountain", "France", "Furniture", "Garage", "Garden", "Gas", "Ghost", "Girl", "Glass", "Gold", "Grass", "Guitar", "Hair", "Hamburger", "Helicopter", "Helmet", "Holiday", "Honey", "Horse", "Hospital", "House", "Hydrogen", "Ice", "Insect", "Insurance", "Iron", "Island", "Jackal", "Jelly", "Jewellery", "Jordan", "Juice", "Kangaroo", "King", "Kitchen", "Kite", "Knife", "Lamp", "Lawyer", "Leather", "Library", "Lighter", "Lion", "Lizard", "Lock", "Lunch", "Machine", "Magazine", "Magician", "Market", "Match", "Microphone", "Monkey", "Morning", "Motorcycle", "Nail", "Napkin", "Needle", "Nest", "Night", "Notebook", "Ocean", "Oil", "Orange", "Oxygen", "Oyster", "Painting", "Parrot", "Pencil", "Piano", "Pillow", "Pizza", "Planet", "Plastic", "Potato", "Queen", "Quill", "Rain", "Rainbow", "Raincoat", "Refrigerator", "Restaurant", "River", "Rocket", "Room", "Rose", "Sandwich", "School", "Scooter", "Shampoo", "Shoe", "Soccer", "Spoon", "Stone", "Sugar", "Teacher", "Telephone", "Television", "Tent", "Toothbrush", "Traffic", "Train", "Truck", "Van", "Vase", "Vegetable", "Vulture", "Wall", "Whale", "Window", "Wire", "Xylophone", "Yacht", "Yak", "Zebra", "Zoo"];
+function generateAdjectiveNoun(seed) {
+    const hash = crypto.createHash('sha1');
+    const digest = hash.update(seed).digest('hex');
+    const adjectiveIndex = parseInt(digest.substring(0, 4), 16) % adjectiveList.length;
+    const nounIndex = parseInt(digest.substring(4, 8), 16) % nounList.length;
+    return adjectiveList[adjectiveIndex] + nounList[nounIndex];
+}
+exports.generateAdjectiveNoun = generateAdjectiveNoun;
+
 
 /***/ }),
 

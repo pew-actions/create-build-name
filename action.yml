@@ -17,10 +17,12 @@ inputs:
     required: false
   format:
     description: Format to use for the build artifact
-    default: '{project}-%ad-%h+{platform}+{configuration}+${{ github.ref_name }}.zip'
+    default: '{project}-%ad-%h-{shortname}+{platform}+{configuration}+${{ github.ref_name }}.zip'
     type: string
     required: false
 outputs:
+  short:
+    description: "Short name of the build artifact"
   nx:
     description: "Name of the Switch build artifact"
   pc:
