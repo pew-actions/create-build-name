@@ -3,13 +3,14 @@ import * as os from 'os'
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as io from '@actions/io'
+import * as wordlist from './wordlist'
 
 class GitOutput {
   stdout = ''
   exitCode = 0
 }
 
-async function execGit(args: string[]) : Promise<GitOutput> {
+async function execGit(args: string[], silent = true) : Promise<GitOutput> {
   const result = new GitOutput()
 
   const env = {}
@@ -22,6 +23,7 @@ async function execGit(args: string[]) : Promise<GitOutput> {
 
   const options = {
     env,
+    silent,
     listeners: {
       stdout: (data: Buffer) => {
         stdout.push(data.toString())
@@ -62,8 +64,25 @@ async function run() : Promise<void> {
     ]
 
     const result = await execGit(args)
-    var templateName = result.stdout
+    var templateName = result.stdout.trim()
+
+    // get short date format
+    const shortDateArgs : string[] = [
+      'log',
+      '-1',
+      '--date=format-local:%m%d',
+      '--pretty=%ad',
+    ]
+
+    const shortDate = (await execGit(shortDateArgs)).stdout.trim()
+
     templateName = templateName.replace('{project}', projectName)
+
+    const shortName = shortDate + wordlist.generateAdjectiveNoun(templateName)
+    core.setOutput('short', shortName)
+    console.log(`Using template name ${templateName} with short name ${shortName}`)
+
+    templateName = templateName.replace('{shortname}', shortName)
     templateName = templateName.replace('{configuration}', buildConfiguration.toUpperCase())
 
     core.setOutput('nx', templateName.replace('{platform}', 'NX'))
