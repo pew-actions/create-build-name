@@ -1,7 +1,7 @@
 {
-  "name": "action-google-drive-download",
+  "name": "action-craete-build-name",
   "version": "1.0.0",
-  "description": "GitHub action to download a file from Google Drive",
+  "description": "GitHub action to create a PEW standardized artifact name",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc && ncc build"
