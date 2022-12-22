@@ -1738,11 +1738,12 @@ function run() {
             const repositoryOwner = process.env.GITHUB_REPOSITORY_OWNER.toLowerCase();
             const qualifiedRepositoryName = process.env.GITHUB_REPOSITORY.toLowerCase();
             const repositoryName = qualifiedRepositoryName.replace(repositoryOwner + '/', '');
-            const projectName = core.getInput('project-name') || repositoryName;
+            const projectName = core.getInput('project-name').toLowerCase() || repositoryName;
             const buildConfiguration = core.getInput('build-configuration');
             if (!buildConfiguration) {
                 throw new Error("No build-configuration supplied");
             }
+            const branch = (core.getInput('branch-name') || process.env.GITHUB_REF_NAME).toLowerCase();
             const dateFormat = core.getInput('date-format');
             const logFormat = core.getInput('format');
             const args = [
@@ -1761,7 +1762,7 @@ function run() {
                 '--pretty=%ad',
             ];
             const shortDate = (yield execGit(shortDateArgs)).stdout.trim();
-            templateName = templateName.replace('{project}', projectName);
+            templateName = templateName.replace('{project}', projectName).replace('{branch}', branch);
             const shortName = shortDate + wordlist.generateAdjectiveNoun(templateName);
             core.setOutput('short', shortName);
             console.log(`Using template name ${templateName} with short name ${shortName}`);
