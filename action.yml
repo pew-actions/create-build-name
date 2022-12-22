@@ -10,6 +10,10 @@ inputs:
     description: Path to the repository
     required: false
     type: string
+  branch-name:
+    description: Branch name of the repository
+    required: false
+    type: string
   build-configuration:
     description: Configuration for the build
     required: true
@@ -21,7 +25,7 @@ inputs:
     required: false
   format:
     description: Format to use for the build artifact
-    default: '{project}-%ad-%h-{shortname}+{platform}+{configuration}+${{ github.ref_name }}.zip'
+    default: '{project}-%ad-%h-{shortname}+{platform}+{configuration}+{branch}.zip'
     type: string
     required: false
 outputs:
