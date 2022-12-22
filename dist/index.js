@@ -1699,6 +1699,7 @@ const core = __importStar(__webpack_require__(470));
 const exec = __importStar(__webpack_require__(986));
 const io = __importStar(__webpack_require__(1));
 const wordlist = __importStar(__webpack_require__(483));
+const repositoryPath = core.getInput('repository-path') || '.';
 class GitOutput {
     constructor() {
         this.stdout = '';
@@ -1717,6 +1718,7 @@ function execGit(args, silent = true) {
         const options = {
             env,
             silent,
+            cwd: repositoryPath,
             listeners: {
                 stdout: (data) => {
                     stdout.push(data.toString());

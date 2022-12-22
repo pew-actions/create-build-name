@@ -5,6 +5,8 @@ import * as exec from '@actions/exec'
 import * as io from '@actions/io'
 import * as wordlist from './wordlist'
 
+const repositoryPath = core.getInput('repository-path') || '.'
+
 class GitOutput {
   stdout = ''
   exitCode = 0
@@ -24,6 +26,7 @@ async function execGit(args: string[], silent = true) : Promise<GitOutput> {
   const options = {
     env,
     silent,
+    cwd: repositoryPath,
     listeners: {
       stdout: (data: Buffer) => {
         stdout.push(data.toString())

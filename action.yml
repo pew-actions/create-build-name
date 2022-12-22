@@ -6,6 +6,10 @@ inputs:
     description: Name of the project
     required: false
     type: string
+  repository-path:
+    description: Path to the repository
+    required: false
+    type: string
   build-configuration:
     description: Configuration for the build
     required: true
