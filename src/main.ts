@@ -56,6 +56,20 @@ async function getGitDate() : Promise<Date> {
     return new Date(1000 * unixTimestamp)
 }
 
+function parseCustomDate() : Date|undefined {
+  const raw = core.getInput('date')
+  if (!raw) {
+    return undefined
+  }
+
+  // Need to have a double ZZ prefix to keep GitHub from interpolating the data
+  if (!raw.endsWith('ZZ')) {
+    throw new Error("Custom date input MUST end with ZZ to prevent GitHub from interpolating time zones")
+  }
+
+  return new Date(raw.substring(0, raw.length - 1))
+}
+
 async function run() : Promise<void> {
 
   try {
@@ -75,7 +89,7 @@ async function run() : Promise<void> {
 
     const logFormat = core.getInput('format')
 
-    const logDate = await getGitDate()
+    const logDate = parseCustomDate() ?? await getGitDate()
     const logDateYear = (logDate.getUTCFullYear() % 100).toString().padStart(2, '0')
     const logDateMonth = (logDate.getUTCMonth() + 1).toString().padStart(2, '0')
     const logDateDate = logDate.getUTCDate().toString().padStart(2, '0')

@@ -1745,7 +1745,19 @@ function getGitDate() {
         return new Date(1000 * unixTimestamp);
     });
 }
+function parseCustomDate() {
+    const raw = core.getInput('date');
+    if (!raw) {
+        return undefined;
+    }
+    // Need to have a double ZZ prefix to keep GitHub from interpolating the data
+    if (!raw.endsWith('ZZ')) {
+        throw new Error("Custom date input MUST end with ZZ to prevent GitHub from interpolating time zones");
+    }
+    return new Date(raw.substring(0, raw.length - 1));
+}
 function run() {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // get project name
@@ -1759,8 +1771,7 @@ function run() {
             }
             const branch = (core.getInput('branch-name') || process.env.GITHUB_REF_NAME).toLowerCase();
             const logFormat = core.getInput('format');
-            const logDate = yield getGitDate();
-            console.log(`Date: ${logDate}`);
+            const logDate = (_a = parseCustomDate()) !== null && _a !== void 0 ? _a : yield getGitDate();
             const logDateYear = (logDate.getUTCFullYear() % 100).toString().padStart(2, '0');
             const logDateMonth = (logDate.getUTCMonth() + 1).toString().padStart(2, '0');
             const logDateDate = logDate.getUTCDate().toString().padStart(2, '0');
