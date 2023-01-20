@@ -1731,7 +1731,33 @@ function execGit(args, silent = true) {
         return result;
     });
 }
+function getGitDate() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const args = [
+            'log',
+            '-1',
+            `--date=unix`,
+            `--pretty=%ad`,
+        ];
+        const result = yield execGit(args);
+        const unixTimestamp = parseInt(result.stdout.trim());
+        console.log(`Git date: ${unixTimestamp}`);
+        return new Date(1000 * unixTimestamp);
+    });
+}
+function parseCustomDate() {
+    const raw = core.getInput('date');
+    if (!raw) {
+        return undefined;
+    }
+    // Need to have a double ZZ prefix to keep GitHub from interpolating the data
+    if (!raw.endsWith('ZZ')) {
+        throw new Error("Custom date input MUST end with ZZ to prevent GitHub from interpolating time zones");
+    }
+    return new Date(raw.substring(0, raw.length - 1));
+}
 function run() {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // get project name
@@ -1744,24 +1770,24 @@ function run() {
                 throw new Error("No build-configuration supplied");
             }
             const branch = (core.getInput('branch-name') || process.env.GITHUB_REF_NAME).toLowerCase();
-            const dateFormat = core.getInput('date-format');
             const logFormat = core.getInput('format');
+            const logDate = (_a = parseCustomDate()) !== null && _a !== void 0 ? _a : yield getGitDate();
+            const logDateYear = (logDate.getUTCFullYear() % 100).toString().padStart(2, '0');
+            const logDateMonth = (logDate.getUTCMonth() + 1).toString().padStart(2, '0');
+            const logDateDate = logDate.getUTCDate().toString().padStart(2, '0');
+            const logDateHour = logDate.getUTCHours().toString().padStart(2, '0');
+            const logDateMinute = logDate.getUTCMinutes().toString().padStart(2, '0');
+            const logDateSecond = logDate.getUTCSeconds().toString().padStart(2, '0');
+            const longDate = `${logDateYear}${logDateMonth}${logDateDate}-${logDateHour}${logDateMinute}${logDateSecond}`;
+            const shortDate = `${logDateMonth}${logDateDate}`;
             const args = [
                 'log',
                 '-1',
-                `--date=format-local:${dateFormat}`,
                 `--pretty=${logFormat}`,
             ];
             const result = yield execGit(args);
             var templateName = result.stdout.trim();
-            // get short date format
-            const shortDateArgs = [
-                'log',
-                '-1',
-                '--date=format-local:%m%d',
-                '--pretty=%ad',
-            ];
-            const shortDate = (yield execGit(shortDateArgs)).stdout.trim();
+            templateName = templateName.replace('{datetime}', longDate);
             templateName = templateName.replace('{project}', projectName).replace('{branch}', branch);
             const shortName = shortDate + wordlist.generateAdjectiveNoun(templateName);
             core.setOutput('short', shortName);
