@@ -18,14 +18,9 @@ inputs:
     description: Configuration for the build
     required: true
     type: string
-  date-format:
-    description:
-    default: '%y%m%d-%H%M%S'
-    type: string
-    required: false
   format:
     description: Format to use for the build artifact
-    default: '{project}-%ad-%h-{shortname}+{platform}+{configuration}+{branch}.zip'
+    default: '{project}-{datetime}-%h-{shortname}+{platform}+{configuration}+{branch}.zip'
     type: string
     required: false
 outputs:

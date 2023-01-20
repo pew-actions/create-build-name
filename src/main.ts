@@ -41,6 +41,21 @@ async function execGit(args: string[], silent = true) : Promise<GitOutput> {
   return result
 }
 
+async function getGitDate() : Promise<Date> {
+    const args : string[] = [
+      'log',
+      '-1',
+      `--date=unix`,
+      `--pretty=%ad`,
+    ]
+
+    const result = await execGit(args)
+
+    const unixTimestamp = parseInt(result.stdout.trim())
+    console.log(`Git date: ${unixTimestamp}`)
+    return new Date(1000 * unixTimestamp)
+}
+
 async function run() : Promise<void> {
 
   try {
@@ -58,29 +73,29 @@ async function run() : Promise<void> {
 
     const branch = (core.getInput('branch-name') || process.env.GITHUB_REF_NAME!).toLowerCase()
 
-    const dateFormat = core.getInput('date-format')
     const logFormat = core.getInput('format')
+
+    const logDate = await getGitDate()
+    const logDateYear = (logDate.getUTCFullYear() % 100).toString().padStart(2, '0')
+    const logDateMonth = (logDate.getUTCMonth() + 1).toString().padStart(2, '0')
+    const logDateDate = logDate.getUTCDate().toString().padStart(2, '0')
+    const logDateHour = logDate.getUTCHours().toString().padStart(2, '0')
+    const logDateMinute = logDate.getUTCMinutes().toString().padStart(2, '0')
+    const logDateSecond = logDate.getUTCSeconds().toString().padStart(2, '0')
+
+    const longDate = `${logDateYear}${logDateMonth}${logDateDate}-${logDateHour}${logDateMinute}${logDateSecond}`
+    const shortDate = `${logDateMonth}${logDateDate}`
 
     const args : string[] = [
       'log',
       '-1',
-      `--date=format-local:${dateFormat}`,
       `--pretty=${logFormat}`,
     ]
 
     const result = await execGit(args)
     var templateName = result.stdout.trim()
 
-    // get short date format
-    const shortDateArgs : string[] = [
-      'log',
-      '-1',
-      '--date=format-local:%m%d',
-      '--pretty=%ad',
-    ]
-
-    const shortDate = (await execGit(shortDateArgs)).stdout.trim()
-
+    templateName = templateName.replace('{datetime}', longDate)
     templateName = templateName.replace('{project}', projectName).replace('{branch}', branch)
 
     const shortName = shortDate + wordlist.generateAdjectiveNoun(templateName)
