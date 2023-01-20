@@ -25,9 +25,13 @@ inputs:
       Use a UTC timestamp in the format '2011-04-14T16:00:49ZZ' (Note the double ZZ)
     required: false
     type: string
+  ref:
+    description: SHA hash to use for the commit (will use git log if not set)
+    required: false
+    type: string
   format:
     description: Format to use for the build artifact
-    default: '{project}-{datetime}-%h-{shortname}+{platform}+{configuration}+{branch}.zip'
+    default: '{project}-{datetime}-{hash}-{shortname}+{platform}+{configuration}+{branch}.zip'
     type: string
     required: false
 outputs:

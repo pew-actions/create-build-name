@@ -1736,8 +1736,8 @@ function getGitDate() {
         const args = [
             'log',
             '-1',
-            `--date=unix`,
-            `--pretty=%ad`,
+            '--date=unix',
+            '--pretty=%ad',
         ];
         const result = yield execGit(args);
         const unixTimestamp = parseInt(result.stdout.trim());
@@ -1770,7 +1770,7 @@ function run() {
                 throw new Error("No build-configuration supplied");
             }
             const branch = (core.getInput('branch-name') || process.env.GITHUB_REF_NAME).toLowerCase();
-            const logFormat = core.getInput('format');
+            var templateName = core.getInput('format');
             const logDate = (_a = parseCustomDate()) !== null && _a !== void 0 ? _a : yield getGitDate();
             const logDateYear = (logDate.getUTCFullYear() % 100).toString().padStart(2, '0');
             const logDateMonth = (logDate.getUTCMonth() + 1).toString().padStart(2, '0');
@@ -1780,13 +1780,20 @@ function run() {
             const logDateSecond = logDate.getUTCSeconds().toString().padStart(2, '0');
             const longDate = `${logDateYear}${logDateMonth}${logDateDate}-${logDateHour}${logDateMinute}${logDateSecond}`;
             const shortDate = `${logDateMonth}${logDateDate}`;
-            const args = [
-                'log',
-                '-1',
-                `--pretty=${logFormat}`,
-            ];
-            const result = yield execGit(args);
-            var templateName = result.stdout.trim();
+            var gitHash = core.getInput('ref');
+            if (gitHash) {
+                gitHash = gitHash.substr(0, 7).toLowerCase();
+            }
+            else {
+                const args = [
+                    'log',
+                    '-1',
+                    '--pretty=%h',
+                ];
+                const result = yield execGit(args);
+                gitHash = result.stdout.trim();
+            }
+            templateName = templateName.replace('{hash}', gitHash);
             templateName = templateName.replace('{datetime}', longDate);
             templateName = templateName.replace('{project}', projectName).replace('{branch}', branch);
             const shortName = shortDate + wordlist.generateAdjectiveNoun(templateName);

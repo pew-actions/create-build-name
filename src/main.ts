@@ -45,8 +45,8 @@ async function getGitDate() : Promise<Date> {
     const args : string[] = [
       'log',
       '-1',
-      `--date=unix`,
-      `--pretty=%ad`,
+      '--date=unix',
+      '--pretty=%ad',
     ]
 
     const result = await execGit(args)
@@ -87,7 +87,7 @@ async function run() : Promise<void> {
 
     const branch = (core.getInput('branch-name') || process.env.GITHUB_REF_NAME!).toLowerCase()
 
-    const logFormat = core.getInput('format')
+    var templateName = core.getInput('format')
 
     const logDate = parseCustomDate() ?? await getGitDate()
     const logDateYear = (logDate.getUTCFullYear() % 100).toString().padStart(2, '0')
@@ -100,14 +100,21 @@ async function run() : Promise<void> {
     const longDate = `${logDateYear}${logDateMonth}${logDateDate}-${logDateHour}${logDateMinute}${logDateSecond}`
     const shortDate = `${logDateMonth}${logDateDate}`
 
-    const args : string[] = [
-      'log',
-      '-1',
-      `--pretty=${logFormat}`,
-    ]
+    var gitHash = core.getInput('ref')
+    if (gitHash) {
+      gitHash = gitHash.substr(0, 7).toLowerCase()
+    } else {
+      const args : string[] = [
+        'log',
+        '-1',
+        '--pretty=%h',
+      ]
 
-    const result = await execGit(args)
-    var templateName = result.stdout.trim()
+      const result = await execGit(args)
+       gitHash = result.stdout.trim()
+    }
+
+    templateName = templateName.replace('{hash}', gitHash)
 
     templateName = templateName.replace('{datetime}', longDate)
     templateName = templateName.replace('{project}', projectName).replace('{branch}', branch)
