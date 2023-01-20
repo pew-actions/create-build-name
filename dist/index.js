@@ -1800,6 +1800,7 @@ function run() {
             if (buildConfiguration) {
                 templateName = templateName.replace('{configuration}', buildConfiguration.toUpperCase());
             }
+            core.setOutput('template', templateName);
             core.setOutput('nx', templateName.replace('{platform}', 'NX'));
             core.setOutput('pc', templateName.replace('{platform}', 'PC'));
             core.setOutput('ps4', templateName.replace('{platform}', 'PS4'));

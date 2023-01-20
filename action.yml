@@ -36,6 +36,8 @@ inputs:
 outputs:
   short:
     description: "Short name of the build artifact"
+  template:
+    description: "Template name without {platform} and {configuration} replacements"
   nx:
     description: "Name of the Switch build artifact"
   pc:
