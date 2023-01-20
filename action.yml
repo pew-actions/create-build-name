@@ -16,7 +16,6 @@ inputs:
     type: string
   build-configuration:
     description: Configuration for the build
-    required: true
     type: string
   date:
     description: |

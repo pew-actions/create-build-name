@@ -1766,9 +1766,6 @@ function run() {
             const repositoryName = qualifiedRepositoryName.replace(repositoryOwner + '/', '');
             const projectName = core.getInput('project-name').toLowerCase() || repositoryName;
             const buildConfiguration = core.getInput('build-configuration');
-            if (!buildConfiguration) {
-                throw new Error("No build-configuration supplied");
-            }
             const branch = (core.getInput('branch-name') || process.env.GITHUB_REF_NAME).toLowerCase();
             var templateName = core.getInput('format');
             const logDate = (_a = parseCustomDate()) !== null && _a !== void 0 ? _a : yield getGitDate();
@@ -1800,7 +1797,9 @@ function run() {
             core.setOutput('short', shortName);
             console.log(`Using template name ${templateName} with short name ${shortName}`);
             templateName = templateName.replace('{shortname}', shortName);
-            templateName = templateName.replace('{configuration}', buildConfiguration.toUpperCase());
+            if (buildConfiguration) {
+                templateName = templateName.replace('{configuration}', buildConfiguration.toUpperCase());
+            }
             core.setOutput('nx', templateName.replace('{platform}', 'NX'));
             core.setOutput('pc', templateName.replace('{platform}', 'PC'));
             core.setOutput('ps4', templateName.replace('{platform}', 'PS4'));
