@@ -112,8 +112,11 @@ async function run() : Promise<void> {
 
     templateName = templateName.replace('{hash}', gitHash)
 
+    const runNumber = process.env.GITHUB_RUN_NUMBER
+    const numberedBranchName = `${branch}${runNumber}`
+
     templateName = templateName.replace('{datetime}', longDate)
-    templateName = templateName.replace('{project}', projectName).replace('{branch}', branch)
+    templateName = templateName.replace('{project}', projectName).replace('{branch}', numberedBranchName)
 
     const shortName = shortDate + wordlist.generateAdjectiveNoun(templateName)
     core.setOutput('short', shortName)
