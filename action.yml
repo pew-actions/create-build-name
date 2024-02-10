@@ -52,5 +52,5 @@ outputs:
     description: "Name of the Xbox Series build artifact"
 
 runs:
-  using: node16
+  using: node20
   main: dist/index.js
