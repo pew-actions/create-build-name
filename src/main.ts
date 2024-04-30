@@ -62,12 +62,7 @@ function parseCustomDate() : Date|undefined {
     return undefined
   }
 
-  // Need to have a double ZZ prefix to keep GitHub from interpolating the data
-  if (!raw.endsWith('ZZ')) {
-    throw new Error("Custom date input MUST end with ZZ to prevent GitHub from interpolating time zones")
-  }
-
-  return new Date(raw.substring(0, raw.length - 1))
+  return new Date(raw)
 }
 
 async function run() : Promise<void> {
